@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{{title}}</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+			<style>
+				.error {
+					color: red;
+						
+					}
+			
+			</style>
+  </head>
+<body>
+
+	<div>
+		<a href="/newpost">New Post</a>
+		<a href="/blog">Blog Main Page</a>
+		<a href="/logout">logout</a>
+	</div>
+	
+   {% block content %}
+   {% endblock %}
+
+</body>
+</html>
+
+

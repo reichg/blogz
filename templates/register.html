@@ -3,6 +3,9 @@
 {% block content %}
 <h1>Register to Make a blog</h1>
 <form action="/register" method="post">
+	{% if duplicate_error %}
+	<p class="error">{{duplicate_error}}</p>
+	{% endif %}
     <table>
         <tr>
             <td><label for="email">Email</label></td>
@@ -23,6 +26,12 @@
             </td>
         </tr>
     </table>
+	{% if len_error %}
+	<p class="error">{{len_error}}</p>
+	{% endif %}
+	{% if blank_error %}
+	<p class="error">{{blank_error}}</p>
+	{% endif %}
 	{% if password_v_error %}
 	<p class="error">{{password_v_error}}</p>
 	{% endif %}

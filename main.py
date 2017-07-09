@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:build-a-blog@localhost:8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogzpassword@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 app.secret_key = 'edf898ddlodf9'
@@ -38,8 +38,8 @@ class User(db.Model):
 @app.before_request
 def require_login():
     
-    allowed_routes = ['login', 'register']
-    if 'email' not in session and request.endpoint not in allowed_routes:
+    allowed_routes = ['login', 'register', 'home']
+    if request.endpoint not in allowed_routes and 'email' not in session:
         return redirect('/login')
 
 
@@ -55,7 +55,7 @@ def login():
             session['email'] = email
             flash('Logged In')
             print(session)
-            return redirect('/blog')
+            return redirect('/newpost')
         elif not user:
             user_error = 'User does not exist'
             return render_template('login.html', user_error=user_error)
@@ -77,26 +77,36 @@ def register():
 
         existing_user = User.query.filter_by(email=email).first()
         if not existing_user:
-            if password == verify:
+            if password == "":
+                blank_error = "Must create a password!"
+                return render_template('register.html', blank_error=blank_error)
+            elif len(password) <= 3:
+                len_error = "Password must be longer than 3 characters"
+                return render_template('register.html', len_error=len_error)
+            elif password == verify:
                 new_user = User(email, password)
                 db.session.add(new_user)
                 db.session.commit()
                 session['email'] = email
-                return redirect('/')
-            else:
+                return redirect('/newpost')
+            elif password != verify:
                 password_v_error = 'Your passwords do not match, try again.'
                 return render_template('register.html', password_v_error=password_v_error)
+                
         else:
-            return '<h1>Duplicate User</h1>'
+            duplicate_error = "User Exists"
+            return render_template('register.html', duplicate_error=duplicate_error)
     else:         
         return render_template('register.html')
 
 
 @app.route('/logout')
 def logout():
-    
-    del session['email']
-    return redirect('/')
+    if 'email' in session:
+        del session['email']
+        return redirect('/home')
+    else:
+        return redirect('/home')
 
 
 @app.route('/newpost', methods=['POST', 'GET'])
@@ -126,14 +136,7 @@ def newpost():
             return redirect('/blog' + redirect_str)
              
     return render_template('newpost.html')
-
-
-
-@app.route('/post', methods=['GET'])
-def post():
-    pass
-
-    
+   
 
       
 @app.route('/blog', methods=['POST', 'GET'])
@@ -150,10 +153,9 @@ def blog():
 #Blog.query.filter_by(id=whatevertheGETidwas)
 
     
-@app.route('/', methods=['POST', 'GET'])
-def index():
-    
-    return redirect('/blog')
+@app.route('/home', methods=['POST', 'GET'])
+def home():
+    return render_template('home.html')
 
 
 if __name__ == '__main__':

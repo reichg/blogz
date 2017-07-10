@@ -37,10 +37,13 @@ class User(db.Model):
     
 @app.before_request
 def require_login():
-    
-    allowed_routes = ['login', 'register', 'home']
+    #pass
+        
+    allowed_routes = ['login', 'register', 'allblogs', 'index']
     if request.endpoint not in allowed_routes and 'email' not in session:
         return redirect('/login')
+    else:
+        pass
 
 
     
@@ -104,9 +107,9 @@ def register():
 def logout():
     if 'email' in session:
         del session['email']
-        return redirect('/home')
-    else:
-        return redirect('/home')
+        logout_success = "You have logged out"
+    return redirect('/allblogs')
+    
 
 
 @app.route('/newpost', methods=['POST', 'GET'])
@@ -133,14 +136,14 @@ def newpost():
             redirect_str = "?"+ "id=" + str(newID)
             #?id=number&title
             
-            return redirect('/blog' + redirect_str)
+            return redirect('/myblog' + redirect_str)
              
     return render_template('newpost.html')
    
 
       
-@app.route('/blog', methods=['POST', 'GET'])
-def blog():
+@app.route('/myblog', methods=['POST', 'GET'])
+def myblog():
     if request.args:
         blog_id = request.args.get('id')
         blog = Blog.query.get(blog_id)
@@ -148,16 +151,22 @@ def blog():
     else:   
         owner = User.query.filter_by(email=session['email']).first()
         blogs = Blog.query.filter_by(owner=owner).all()
-        return render_template('blog.html', owner=owner, blogs=blogs)
+        return render_template('myblog.html', owner=owner, blogs=blogs)
 #get the args from the URL (ID)
 #Blog.query.filter_by(id=whatevertheGETidwas)
 
     
-@app.route('/home', methods=['POST', 'GET'])
-def home():
-    return render_template('home.html')
+@app.route('/allblogs', methods=['POST', 'GET'])
+def allblogs():
+    
+    blogs = Blog.query.all()
+    return render_template('allblogs.html', blogs=blogs)
 
+@app.route('/', methods=['POST', 'GET'])
+def index():
+    return render_template('index.html')
 
+    
 if __name__ == '__main__':
     app.run()
 

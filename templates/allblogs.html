@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if logout_success %}
+<p class="error">{{logout_success}}</p>
+{% endif %}
+
+<h1>Welcome to Blogz</h1>
+{% for blog in blogs %}
+					<div>
+            <h1><a href="/blog?id={{blog.id}}" >{{blog.title}}</a></h1>
+					<p>{{blog.body}}</p>	
+					<hr>
+					</div>
+		{% endfor %}
+
+
+
+{% endblock %}

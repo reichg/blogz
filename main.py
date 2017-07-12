@@ -39,7 +39,7 @@ class User(db.Model):
 def require_login():
     #pass
         
-    allowed_routes = ['login', 'register', 'allblogs', 'index']
+    allowed_routes = ['login', 'register', 'blogs', 'index', 'logout']
     if request.endpoint not in allowed_routes and 'email' not in session:
         return redirect('/login')
     else:
@@ -108,7 +108,7 @@ def logout():
     if 'email' in session:
         del session['email']
         logout_success = "You have logged out"
-    return redirect('/allblogs')
+    return redirect('/blogs')
     
 
 
@@ -132,7 +132,7 @@ def newpost():
             new_blog = Blog(blog_title, blog_body, owner)
             db.session.add(new_blog)
             db.session.commit()
-            newID = new_blog.id
+            newID = new_blog.owner
             redirect_str = "?"+ "id=" + str(newID)
             #?id=number&title
             
@@ -156,16 +156,29 @@ def myblog():
 #Blog.query.filter_by(id=whatevertheGETidwas)
 
     
-@app.route('/allblogs', methods=['POST', 'GET'])
-def allblogs():
-    blogs = Blog.query.all()
-    return render_template('allblogs.html', blogs=blogs)
+@app.route('/blogs', methods=['POST', 'GET'])
+def blogs():
+    #if request.method == 'GET':
+        #user_id = request.args.get('id')
+        #user = User.query.get(user_id)
+        #return render_template('blogs.html', user=user)
+    #else:
+        user = User.query.all()
+        blogs = Blog.query.all()
+        return render_template('blogs.html', blogs=blogs, user=user)
 
 
 @app.route('/', methods=['POST', 'GET'])
 def index(): 
-    
     users = User.query.all()
+    #redirect_str = "?"+ "user=" + str(users.email)
+            
+
+        #owner = User.query.filter_by(email=session['email']).first()
+        #blogs = Blog.query.filter_by(owner=owner).all()
+        #return render_template('blog.html', owner=owner, blogs=blogs)
+            
+    #return redirect('/blog' + redirect_str)
     return render_template('index.html', users=users)
     
 

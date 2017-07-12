@@ -158,16 +158,16 @@ def myblog():
     
 @app.route('/allblogs', methods=['POST', 'GET'])
 def allblogs():
-    
     blogs = Blog.query.all()
     return render_template('allblogs.html', blogs=blogs)
 
+
 @app.route('/', methods=['POST', 'GET'])
-def index():
+def index(): 
     
+    users = User.query.all()
+    return render_template('index.html', users=users)
     
-    
-    return render_template('index.html')
 
     
 if __name__ == '__main__':

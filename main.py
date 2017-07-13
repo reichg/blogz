@@ -1,6 +1,7 @@
 from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
 
+
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogzpassword@localhost:8889/blogz'
@@ -15,6 +16,8 @@ class Blog(db.Model):
     title = db.Column(db.String(120))
     body = db.Column(db.String(5000))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    user = db.relationship('User')
 
     def __init__(self, title, body, owner):
         
@@ -105,6 +108,7 @@ def register():
 
 @app.route('/logout')
 def logout():
+    
     if 'email' in session:
         del session['email']
         logout_success = "You have logged out"
@@ -114,6 +118,7 @@ def logout():
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
+    
     owner = User.query.filter_by(email=session['email']).first()
     if request.method == 'POST':
         blog_title = request.form['blogtitle']
@@ -144,6 +149,7 @@ def newpost():
       
 @app.route('/myblog', methods=['POST', 'GET'])
 def myblog():
+    
     if request.args:
         blog_id = request.args.get('id')
         blog = Blog.query.get(blog_id)
@@ -151,34 +157,26 @@ def myblog():
     else:   
         owner = User.query.filter_by(email=session['email']).first()
         blogs = Blog.query.filter_by(owner=owner).all()
-        return render_template('myblog.html', owner=owner, blogs=blogs)
-#get the args from the URL (ID)
-#Blog.query.filter_by(id=whatevertheGETidwas)
+        return render_template('myblog.html', blogs=blogs, owner=owner)
+
 
     
 @app.route('/blogs', methods=['POST', 'GET'])
 def blogs():
-    #if request.method == 'GET':
-        #user_id = request.args.get('id')
-        #user = User.query.get(user_id)
-        #return render_template('blogs.html', user=user)
-    #else:
-        user = User.query.all()
+    
+    if request.args:
+        user_id = request.args.get('user')
+        blogs = Blog.query.filter_by(owner_id=user_id).all()
+        return render_template('blogs.html', blogs=blogs,)
+    else:
         blogs = Blog.query.all()
-        return render_template('blogs.html', blogs=blogs, user=user)
+        return render_template('blogs.html', blogs=blogs)
 
 
 @app.route('/', methods=['POST', 'GET'])
-def index(): 
+def index():
+    
     users = User.query.all()
-    #redirect_str = "?"+ "user=" + str(users.email)
-            
-
-        #owner = User.query.filter_by(email=session['email']).first()
-        #blogs = Blog.query.filter_by(owner=owner).all()
-        #return render_template('blog.html', owner=owner, blogs=blogs)
-            
-    #return redirect('/blog' + redirect_str)
     return render_template('index.html', users=users)
     
 

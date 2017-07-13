@@ -137,8 +137,8 @@ def newpost():
             new_blog = Blog(blog_title, blog_body, owner)
             db.session.add(new_blog)
             db.session.commit()
-            newID = new_blog.owner
-            redirect_str = "?"+ "id=" + str(newID)
+            newID = Blog.query.order_by('-id').first()
+            redirect_str = "?"+ "id=" + str(newID.id)
             #?id=number&title
             
             return redirect('/myblog' + redirect_str)
